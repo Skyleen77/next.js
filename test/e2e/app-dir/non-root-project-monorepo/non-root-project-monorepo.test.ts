@@ -134,8 +134,8 @@ describe('non-root-project-monorepo', () => {
           expect(normalizeStackTrace(await getRedboxCallStack(browser)))
             .toMatchInlineSnapshot(`
            "eval app/separate-file.ts (1:11)
-           <unknown> rsc)/./app/separate-file.ts (rsc://React/Server/file://<full-path>/apps/web/.next/server/app/source-maps-rsc/page.js?3 (63:1)
-           __webpack_require__ rsc:/Server/file://<full-path>/apps/web/.next/server/webpack-runtime.js (33:42)
+           <FIXME-file-protocol>
+           <FIXME-file-protocol>
            innerArrowFunction app/source-maps-rsc/page.tsx (14:3)
            innerFunction app/source-maps-rsc/page.tsx (10:3)
            Page app/source-maps-rsc/page.tsx (4:5)"
@@ -177,10 +177,10 @@ describe('non-root-project-monorepo', () => {
           expect(normalizeStackTrace(await getRedboxCallStack(browser)))
             .toMatchInlineSnapshot(`
            "eval app/separate-file.ts (1:7)
-           ./app/separate-file.ts file://<full-path>/apps/web/.next/static/chunks/app/source-maps-ssr/page.js (49:1)
-           options.factory file://<full-path>/apps/web/.next/static/chunks/webpack.js (700:31)
-           __webpack_require__ file://<full-path>/apps/web/.next/static/chunks/webpack.js (37:33)
-           fn file://<full-path>/apps/web/.next/static/chunks/webpack.js (357:21)
+           <FIXME-file-protocol>
+           <FIXME-file-protocol>
+           <FIXME-file-protocol>
+           <FIXME-file-protocol>
            innerArrowFunction app/source-maps-ssr/page.tsx (16:3)
            innerFunction app/source-maps-ssr/page.tsx (12:3)
            Page app/source-maps-ssr/page.tsx (6:5)"
@@ -222,10 +222,10 @@ describe('non-root-project-monorepo', () => {
           expect(normalizeStackTrace(await getRedboxCallStack(browser)))
             .toMatchInlineSnapshot(`
            "eval app/separate-file.ts (1:7)
-           ./app/separate-file.ts file://<full-path>/apps/web/.next/static/chunks/app/source-maps-client/page.js (49:1)
-           options.factory file://<full-path>/apps/web/.next/static/chunks/webpack.js (712:31)
-           __webpack_require__ file://<full-path>/apps/web/.next/static/chunks/webpack.js (37:33)
-           fn file://<full-path>/apps/web/.next/static/chunks/webpack.js (369:21)
+           <FIXME-file-protocol>
+           <FIXME-file-protocol>
+           <FIXME-file-protocol>
+           <FIXME-file-protocol>
            innerArrowFunction app/source-maps-client/page.tsx (17:3)
            innerFunction app/source-maps-client/page.tsx (13:3)
            effectCallback app/source-maps-client/page.tsx (7:5)"
