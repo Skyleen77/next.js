@@ -2790,6 +2790,7 @@ export default abstract class Server<
       const { metadata } = result
 
       const {
+        cacheControl,
         headers = {},
         // Add any fetch tags that were on the page to the response headers.
         fetchTags: cacheTags,
@@ -2808,7 +2809,7 @@ export default abstract class Server<
       if (
         isAppPath &&
         isSSG &&
-        metadata.revalidate === 0 &&
+        cacheControl?.revalidate === 0 &&
         !this.renderOpts.dev &&
         !isRoutePPREnabled
       ) {
@@ -2830,11 +2831,6 @@ export default abstract class Server<
 
         throw err
       }
-
-      const cacheControl: CacheControl | undefined =
-        metadata.revalidate !== undefined
-          ? { revalidate: metadata.revalidate }
-          : undefined
 
       // Based on the metadata, we can determine what kind of cache result we
       // should return.
