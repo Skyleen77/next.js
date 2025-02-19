@@ -13,7 +13,8 @@ use serde::{Deserialize, Serialize};
 use tracing::Instrument;
 use turbo_rcstr::RcStr;
 use turbo_tasks::{
-    debug::ValueDebugFormat, trace::TraceRawVcs, NonLocalValue, ResolvedVc, TryJoinIterExt, Vc,
+    debug::ValueDebugFormat, trace::TraceRawVcs, NonLocalValue, ResolvedVc, TaskInput,
+    TryJoinIterExt, Vc,
 };
 
 use crate::{
@@ -24,13 +25,16 @@ use crate::{
         SingleModuleGraphNode,
     },
 };
-
 #[derive(
     Clone, Debug, Default, PartialEq, Serialize, Deserialize, TraceRawVcs, ValueDebugFormat,
 )]
 pub struct RoaringBitmapWrapper(#[turbo_tasks(trace_ignore)] RoaringBitmap);
 
 impl RoaringBitmapWrapper {
+    pub fn new(value: RoaringBitmap) -> RoaringBitmapWrapper {
+        RoaringBitmapWrapper(value)
+    }
+
     /// Whether `self` contains bits that are not in `other`
     ///
     /// The existing `is_superset` method also returns true for equal sets
@@ -40,6 +44,11 @@ impl RoaringBitmapWrapper {
 
     pub fn into_inner(self) -> RoaringBitmap {
         self.0
+    }
+}
+impl TaskInput for RoaringBitmapWrapper {
+    fn is_transient(&self) -> bool {
+        false
     }
 }
 unsafe impl NonLocalValue for RoaringBitmapWrapper {}
@@ -77,7 +86,31 @@ impl Hash for RoaringBitmapWrapper {
 }
 
 #[turbo_tasks::value(transparent)]
+pub struct RoaringBitmapWrapperCell(RoaringBitmapWrapper);
+
+#[turbo_tasks::value]
 pub struct ChunkGroupInfo(FxHashMap<ResolvedVc<Box<dyn Module>>, RoaringBitmapWrapper>);
+
+#[turbo_tasks::value_impl]
+impl ChunkGroupInfo {
+    #[turbo_tasks::function]
+    pub fn get(&self, module: ResolvedVc<Box<dyn Module>>) -> Result<Vc<RoaringBitmapWrapperCell>> {
+        Ok(Vc::cell(self.get_individual(module)?.clone()))
+    }
+}
+
+impl ChunkGroupInfo {
+    pub fn get_individual(
+        &self,
+        module: ResolvedVc<Box<dyn Module>>,
+    ) -> Result<&RoaringBitmapWrapper> {
+        if let Some(chunk_group) = self.0.get(&module) {
+            Ok(chunk_group)
+        } else {
+            anyhow::bail!("Module has no chunk group info");
+        }
+    }
+}
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 enum ChunkGroup {
@@ -349,7 +382,7 @@ pub async fn compute_chunk_group_info(graph: &ModuleGraph) -> Result<Vc<ChunkGro
         span.record("visit_count", visit_count);
         span.record("chunk_group_count", next_chunk_group_id);
 
-        Ok(Vc::cell(module_chunk_groups))
+        Ok(ChunkGroupInfo(module_chunk_groups).cell())
     }
     .instrument(span_outer)
     .await
