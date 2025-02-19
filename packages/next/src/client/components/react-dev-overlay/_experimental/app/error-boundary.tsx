@@ -2,7 +2,6 @@ import type { GlobalErrorComponent } from '../../../error-boundary'
 
 import { PureComponent } from 'react'
 import { RuntimeErrorHandler } from '../../../errors/runtime-error-handler'
-import { onUncaughtError } from '../../../../react-client-callbacks/error-boundary-callbacks'
 
 type DevOverlayErrorBoundaryProps = {
   children: React.ReactNode
@@ -58,12 +57,8 @@ export class DevOverlayErrorBoundary extends PureComponent<
     }
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
+  componentDidCatch() {
     this.props.onError(this.state.isReactError)
-
-    // We don't consider errors caught unless they're caught by an explicit error
-    // boundary. The built-in ones are considered implicit.
-    onUncaughtError(error, errorInfo)
   }
 
   render() {
