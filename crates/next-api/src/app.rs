@@ -53,13 +53,15 @@ use turbopack::{
 use turbopack_core::{
     asset::AssetContent,
     chunk::{
-        availability_info::AvailabilityInfo, ChunkGroupType, ChunkableModule, ChunkableModules,
-        ChunkingContext, ChunkingContextExt, EvaluatableAsset, EvaluatableAssets,
+        availability_info::AvailabilityInfo, ChunkGroupType, ChunkingContext, ChunkingContextExt,
+        EvaluatableAsset, EvaluatableAssets,
     },
     file_source::FileSource,
     ident::AssetIdent,
     module::Module,
-    module_graph::{GraphEntries, ModuleGraph, SingleModuleGraph, VisitedModules},
+    module_graph::{
+        chunk_group_info::ChunkGroup, GraphEntries, ModuleGraph, SingleModuleGraph, VisitedModules,
+    },
     output::{OutputAsset, OutputAssets},
     raw_output::RawOutput,
     reference_type::{CssReferenceSubType, ReferenceType},
@@ -1661,20 +1663,17 @@ impl AppEndpoint {
                     let client_references = client_references.await?;
                     let span = tracing::trace_span!("server utils");
                     async {
-                        let server_utils = client_references
-                            .server_utils
-                            .iter()
-                            .map(|m| async move {
-                                Ok(*ResolvedVc::try_downcast::<Box<dyn ChunkableModule>>(*m)
-                                    .context("Expected server utils to be chunkable")?)
-                            })
-                            .try_join()
-                            .await?;
+                        let server_utils = client_references.server_utils.clone();
                         let chunk_group = chunking_context
-                            .chunk_group_multiple(
+                            .chunk_group(
                                 AssetIdent::from_path(this.app_project.project().project_path())
                                     .with_modifier(server_utils_modifier()),
-                                ChunkableModules::interned(server_utils),
+                                // TODO this should be ChunkGroup::Shared
+                                ChunkGroup::Entry {
+                                    entries: server_utils,
+                                    ty: ChunkGroupType::Entry,
+                                }
+                                .cell(),
                                 module_graph,
                                 Value::new(current_availability_info),
                             )
@@ -1709,7 +1708,12 @@ impl AppEndpoint {
                             let chunk_group = chunking_context
                                 .chunk_group(
                                     server_component.ident(),
-                                    *ResolvedVc::upcast(server_component),
+                                    // TODO this should be ChunkGroup::Shared
+                                    ChunkGroup::Entry {
+                                        entries: vec![ResolvedVc::upcast(server_component)],
+                                        ty: ChunkGroupType::Entry,
+                                    }
+                                    .cell(),
                                     module_graph,
                                     Value::new(current_availability_info),
                                 )
