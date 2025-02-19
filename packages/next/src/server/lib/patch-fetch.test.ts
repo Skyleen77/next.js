@@ -86,7 +86,7 @@ describe('createPatchedFetcher', () => {
           fetchCache: true,
           fetchIdx: 1,
           fetchUrl: 'https://example.com/',
-          revalidate: false,
+          cacheControl: { revalidate: false },
           tags: [],
         }
       )
