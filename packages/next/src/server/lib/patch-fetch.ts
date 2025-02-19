@@ -662,7 +662,7 @@ export function createPatchedFetcher(
                     },
                     {
                       fetchCache: true,
-                      revalidate: externalRevalidate,
+                      cacheControl: { revalidate: externalRevalidate },
                       fetchUrl,
                       fetchIdx,
                       tags,
@@ -714,7 +714,7 @@ export function createPatchedFetcher(
                           },
                           {
                             fetchCache: true,
-                            revalidate: externalRevalidate,
+                            cacheControl: { revalidate: externalRevalidate },
                             fetchUrl,
                             fetchIdx,
                             tags,

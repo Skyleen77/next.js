@@ -38,7 +38,7 @@ async function cacheNewResult<T>(
       revalidate: typeof revalidate !== 'number' ? CACHE_ONE_YEAR : revalidate,
     },
     {
-      revalidate,
+      cacheControl: revalidate !== undefined ? { revalidate } : undefined,
       fetchCache: true,
       tags,
       fetchIdx,

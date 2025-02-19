@@ -647,5 +647,10 @@
   "646": "No span found for compilation",
   "647": "@rspack/core is not available. Please make sure `@next/plugin-rspack` is correctly installed.",
   "648": "@rspack/plugin-react-refresh is not available. Please make sure `@next/plugin-rspack` is correctly installed.",
-  "649": "Cache handlers not initialized"
+  "649": "Cache handlers not initialized",
+  "650": "If providing both the stale and expire options, the expire option must be greater than the stale option. The expire option indicates how many seconds from the start until it can no longer be used.",
+  "651": "If providing both the revalidate and expire options, the expire option must be greater than the revalidate option. The expire option indicates how many seconds from the start until it can no longer be used.",
+  "652": "revalidate must be a number for image-cache",
+  "653": "Pass `Infinity` instead of `false` if you want to cache on the server forever without checking with the origin.",
+  "654": "SSG should not return an image cache value"
 }
