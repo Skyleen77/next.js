@@ -1039,10 +1039,12 @@ export function getRedboxSource(
         )
       )
     const root = portal.shadowRoot
-    return (
+    const source =
       root.querySelector('[data-nextjs-codeframe], [data-nextjs-terminal]')
         ?.innerText ?? null
-    )
+    // TODO: Incrementally replace tests with the new matcher.
+    // Insert \n after the first \n
+    return source?.replace('\n', '\n\n') ?? null
   })
 }
 
