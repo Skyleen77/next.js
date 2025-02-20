@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, use } from 'react'
+import React, { Suspense, use } from 'react'
 import { useServerInsertedMetadata } from '../../server/app-render/metadata-insertion/use-server-inserted-metadata'
 
 export type StreamingMetadataResolvedState = {
@@ -27,7 +27,10 @@ function BrowserResolvedMetadata({
 }: {
   promise: Promise<StreamingMetadataResolvedState>
 }) {
-  const { metadata } = use(promise)
+  const { metadata, error } = use(promise)
+  // If there's metadata error on client, discard the browser metadata
+  // and let metadata outlet deal with the error.
+  if (error) return null
   return metadata
 }
 

@@ -402,6 +402,12 @@ async function createComponentTreeInternal({
       <StreamingMetadata />
     ) : undefined
 
+  // console.log('actualSegment', actualSegment, tree)
+  const metadataOutlet =
+    actualSegment !== DEFAULT_SEGMENT_KEY ? (
+      <StreamingMetadataOutlet />
+    ) : undefined
+
   const notFoundElement = NotFound ? (
     <>
       <NotFound />
@@ -522,7 +528,9 @@ async function createComponentTreeInternal({
             preloadCallbacks,
             authInterrupts,
             StreamingMetadata,
-            StreamingMetadataOutlet,
+            StreamingMetadataOutlet: isChildrenRouteKey
+              ? StreamingMetadataOutlet
+              : () => null,
           })
 
           childCacheNodeSeedData = seedData
@@ -710,7 +718,7 @@ async function createComponentTreeInternal({
         <OutletBoundary>
           <MetadataOutlet ready={getViewportReady} />
           <MetadataOutlet ready={getMetadataReady} />
-          <StreamingMetadataOutlet />
+          {metadataOutlet}
         </OutletBoundary>
       </React.Fragment>,
       parallelRouteCacheNodeSeedData,
